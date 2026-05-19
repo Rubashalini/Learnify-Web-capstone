@@ -110,7 +110,7 @@ function RegisterPage() {
               value={formData.firstName}
               onChange={handleChange}
               className="w-full bg-[#D9D9D9] bg-opacity-60 text-white
-                placeholder-[#0A1832]/50 font-body text-sm px-4 py-3
+                placeholder-[#0A1832]/50 font-bold font-body text-sm px-4 py-3
                 rounded-lg border border-[#4A7FA7] border-opacity-40
                 focus:outline-none focus:border-[#4A7FA7]
                 transition-colors duration-200"
@@ -124,7 +124,7 @@ function RegisterPage() {
               value={formData.lastName}
               onChange={handleChange}
               className="w-full bg-[#D9D9D9] bg-opacity-60 text-white
-                placeholder-[#0A1832]/50 font-body text-sm px-4 py-3
+                placeholder-[#0A1832]/50 font-bold font-body text-sm px-4 py-3
                 rounded-lg border border-[#4A7FA7] border-opacity-40
                 focus:outline-none focus:border-[#4A7FA7]
                 transition-colors duration-200"
@@ -138,7 +138,7 @@ function RegisterPage() {
               value={formData.email}
               onChange={handleChange}
               className="w-full bg-[#D9D9D9] bg-opacity-60 text-white
-                placeholder-[#0A1832]/50 font-body text-sm px-4 py-3
+                placeholder-[#0A1832]/50 font-bold font-body text-sm px-4 py-3
                 rounded-lg border border-[#4A7FA7] border-opacity-40
                 focus:outline-none focus:border-[#4A7FA7]
                 transition-colors duration-200"
@@ -152,7 +152,7 @@ function RegisterPage() {
               value={formData.password}
               onChange={handleChange}
               className="w-full bg-[#D9D9D9] bg-opacity-60 text-white
-                placeholder-[#0A1832]/50 font-body text-sm px-4 py-3
+                placeholder-[#0A1832]/50 font-bold font-body text-sm px-4 py-3
                 rounded-lg border border-[#4A7FA7] border-opacity-40
                 focus:outline-none focus:border-[#4A7FA7]
                 transition-colors duration-200"
@@ -166,7 +166,7 @@ function RegisterPage() {
               value={formData.confirmPassword}
               onChange={handleChange}
               className="w-full bg-[#D9D9D9] bg-opacity-60 text-white
-                placeholder-[#0A1832]/50 font-body text-sm px-4 py-3
+                placeholder-[#0A1832]/50 font-bold font-body text-sm px-4 py-3
                 rounded-lg border border-[#4A7FA7] border-opacity-40
                 focus:outline-none focus:border-[#4A7FA7]
                 transition-colors duration-200"
