@@ -272,8 +272,8 @@ export function MonthlyScoreChart() {
   }, []);
 
   return (
-    <div className="h-full bg-white rounded-[18px] border border-[#D0E3F0] overflow-hidden shadow-[0_2px_8px_rgba(10,25,49,0.07)]">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-[#D0E3F0]">
+    <div className="h-full bg-white rounded-[18px] border border-[#D0E3F0] overflow-hidden shadow-[0_2px_8px_rgba(10,25,49,0.07)] flex flex-col">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[#D0E3F0] shrink-0">
         <div>
           <div className="text-[15px] font-bold text-[#0A1931]" style={{ fontFamily: "Poppins, sans-serif" }}>
             Monthly Score Trend
@@ -286,8 +286,10 @@ export function MonthlyScoreChart() {
           Full Report
         </button>
       </div>
-      <div className="px-6 py-5" style={{ height: 260 }}>
-        <canvas ref={canvasRef} />
+      <div className="flex-1 w-full relative min-h-[350px]">
+        <div className="absolute inset-0 px-6 py-5">
+          <canvas ref={canvasRef} />
+        </div>
       </div>
     </div>
   );
