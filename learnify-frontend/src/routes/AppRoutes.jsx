@@ -5,6 +5,7 @@ import LandingLayout from "../components/layout/LandingLayout"
 // Pages
 import LandingPage from "../pages/LandingPage"    
 import DashboardPage from "../pages/DashboardPage"
+import ProgressPage from "../pages/ProgressPage"
 import SchedulerPage from "../pages/SchedulerPage"
 import AIChatPage from "../pages/AIChatPage"
 import ResourcesPage from "../pages/ResourcesPage"
@@ -32,6 +33,7 @@ function AppRoutes() {
         {/* Dashboard Routes — Dark theme with sidebar */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/progress" element={<ProgressPage />} />
           <Route path="/scheduler" element={<SchedulerPage />} />
           <Route path="/ai-chat" element={<AIChatPage />} />
           <Route path="/resources" element={<ResourcesPage />} />
