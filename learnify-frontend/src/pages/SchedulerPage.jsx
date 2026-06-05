@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, Sparkles } from "lucide-react"
 import { FaBookOpen, FaCheckCircle, FaClock, FaBullseye } from "react-icons/fa"
 import ProgressBar from "../components/common/ProgressBar"
 import Button from "../components/common/Button"
@@ -49,21 +49,21 @@ const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
 const timeSlots = ["8:00 AM", "10:00 AM", "12:00 PM", "1:00 PM", "3:00 PM", "5:00 PM"]
 
 const subjectColors = {
-  Mathematics: "bg-blue-100 border-l-4 border-blue-500",
-  Physics: "bg-sky-100 border-l-4 border-sky-500",
-  Chemistry: "bg-cyan-100 border-l-4 border-cyan-500",
-  Biology: "bg-teal-100 border-l-4 border-teal-500",
-  "English Lit": "bg-indigo-100 border-l-4 border-indigo-500",
-  English: "bg-indigo-100 border-l-4 border-indigo-500",
+  Mathematics: "bg-[#0D2440]",
+  Physics: "bg-[#2E5B82]",
+  Chemistry: "bg-[#EAF0F6]",
+  Biology: "bg-[#7BA7D7]",
+  "English Lit": "bg-[#C6D8EB]",
+  English: "bg-[#C6D8EB]",
 }
 
 const subjectTextColors = {
-  Mathematics: "text-blue-800",
-  Physics: "text-sky-800",
-  Chemistry: "text-cyan-800",
-  Biology: "text-teal-800",
-  "English Lit": "text-indigo-800",
-  English: "text-indigo-800",
+  Mathematics: "text-white",
+  Physics: "text-white",
+  Chemistry: "text-[#0D2440]",
+  Biology: "text-[#0D2440]",
+  "English Lit": "text-[#0D2440]",
+  English: "text-[#0D2440]",
 }
 
 const timetable = {
@@ -182,12 +182,12 @@ const upcomingDeadlines = [
 ]
 
 const legendItems = [
-  { label: "Mathematics", color: "bg-blue-500" },
-  { label: "Physics", color: "bg-sky-500" },
-  { label: "Chemistry", color: "bg-cyan-500" },
-  { label: "Biology", color: "bg-teal-500" },
-  { label: "English", color: "bg-indigo-500" },
-  { label: "Free Slot", color: "bg-gray-200" },
+  { label: "Mathematics", color: "bg-[#0D2440]" },
+  { label: "Physics",     color: "bg-[#2E5B82]" },
+  { label: "Chemistry",   color: "bg-[#EAF0F6] border border-gray-200" },
+  { label: "Biology",     color: "bg-[#7BA7D7]" },
+  { label: "English",     color: "bg-[#C6D8EB]" },
+  { label: "Free Slot",   color: "border border-dashed border-[#B3CFE5]" },
 ]
 
 // ── Component ─────────────────────────────────────────────
@@ -299,12 +299,17 @@ function SchedulerPage() {
 
       {/* ── Stats Row ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {dynamicStats.map((stat) => {
+        {dynamicStats.map((stat, idx) => {
           const Icon = stat.icon
+          const topBorderColors = [
+            "border-t-[#2E5B82]",
+            "border-t-green-500",
+            "border-t-orange-500",
+            "border-t-purple-500"
+          ]
           return (
             <div key={stat.label}
-              className="bg-white rounded-2xl px-5 py-4 shadow-lg
-                border border-gray-100">
+              className={`bg-white rounded-2xl px-5 py-4 shadow-lg border-t-4 ${topBorderColors[idx]} border-x border-b border-gray-100`}>
               <div className={`w-10 h-10 rounded-xl ${stat.iconBg}
                 flex items-center justify-center mb-3`}>
                 <Icon size={20} className={stat.iconColor} />
@@ -384,7 +389,9 @@ function SchedulerPage() {
                         if (!cell) {
                           return (
                             <td key={day} className="py-1 px-1">
-                              <div className="min-h-[58px]" />
+                              <div className="border border-dashed border-[#B3CFE5] rounded-lg py-4 text-center text-[#B3CFE5] font-body text-[10px] font-bold min-h-[58px] flex items-center justify-center bg-transparent">
+                                Free
+                              </div>
                             </td>
                           )
                         }
@@ -400,24 +407,30 @@ function SchedulerPage() {
                           <td key={day} className="py-1 px-1">
                             <button
                               onClick={() => handleOpenModal(time, day, cell.subject, cell.detail)}
-                              className={`w-full text-left rounded-lg py-2 px-2 min-h-[58px] transition-all duration-200 hover:scale-[1.02] hover:shadow-md border-2 ${
+                              className={`w-full text-left rounded-lg py-2 px-2 min-h-[58px] transition-all duration-200 hover:scale-[1.02] hover:shadow-md border-t-4 ${
                                 isCompleted
-                                  ? "border-green-400/80 shadow-[0_0_8px_rgba(34,197,94,0.15)] bg-green-50/10"
+                                  ? "border-t-green-500"
                                   : isPartial
-                                  ? "border-amber-400/80 shadow-[0_0_8px_rgba(245,158,11,0.15)] bg-amber-50/10"
+                                  ? "border-t-amber-500"
                                   : isSkipped
-                                  ? "border-red-300/60 opacity-50 bg-red-50/5"
-                                  : "border-transparent"
-                              } ${subjectColors[cell.subject] || "bg-gray-100 border-l-4 border-gray-300"}`}
+                                  ? "border-t-red-500 opacity-60"
+                                  : "border-t-gray-300/40"
+                              } ${subjectColors[cell.subject] || "bg-gray-100"}`}
                             >
                               <p className={`font-body font-semibold text-[11px] leading-tight ${
-                                isSkipped ? "line-through text-gray-400" : subjectTextColors[cell.subject] || "text-gray-700"
+                                isSkipped
+                                  ? "line-through opacity-50 text-gray-700"
+                                  : subjectTextColors[cell.subject] || "text-gray-700"
                               }`}>
                                 {cell.subject}
                               </p>
                               {cell.detail && (
                                 <p className={`font-body text-[10px] leading-tight mt-0.5 ${
-                                  isSkipped ? "line-through text-gray-400" : "text-gray-500"
+                                  isSkipped
+                                    ? "line-through opacity-40 text-gray-500"
+                                    : cell.subject === "Mathematics" || cell.subject === "Physics"
+                                    ? "text-white/70"
+                                    : "text-gray-500"
                                 }`}>
                                   {cell.detail}
                                 </p>
@@ -426,22 +439,38 @@ function SchedulerPage() {
                               {/* Progress Status Indicator */}
                               <div className="mt-2 flex items-center gap-1">
                                 {isCompleted && (
-                                  <span className="text-[9px] font-bold text-green-700 bg-green-100 px-1 py-0.5 rounded flex items-center gap-0.5">
+                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 ${
+                                    cell.subject === "Mathematics" || cell.subject === "Physics"
+                                      ? "bg-green-500/20 text-green-300"
+                                      : "bg-green-100 text-green-700"
+                                  }`}>
                                     ✓ 2.0h
                                   </span>
                                 )}
                                 {isPartial && (
-                                  <span className="text-[9px] font-bold text-amber-700 bg-amber-100 px-1 py-0.5 rounded flex items-center gap-0.5">
+                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 ${
+                                    cell.subject === "Mathematics" || cell.subject === "Physics"
+                                      ? "bg-amber-500/20 text-amber-300"
+                                      : "bg-amber-100 text-amber-700"
+                                  }`}>
                                     ◷ {log.hours}h
                                   </span>
                                 )}
                                 {isSkipped && (
-                                  <span className="text-[9px] font-bold text-red-700 bg-red-100 px-1 py-0.5 rounded flex items-center gap-0.5">
+                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 ${
+                                    cell.subject === "Mathematics" || cell.subject === "Physics"
+                                      ? "bg-red-500/20 text-red-300"
+                                      : "bg-red-100 text-red-700"
+                                  }`}>
                                     ✗ Skipped
                                   </span>
                                 )}
                                 {!hasLogged && (
-                                  <span className="text-[9px] font-medium text-gray-400 bg-gray-100 px-1 py-0.5 rounded border border-gray-200">
+                                  <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded border ${
+                                    cell.subject === "Mathematics" || cell.subject === "Physics"
+                                      ? "bg-white/10 text-white/40 border-white/10 hover:text-white/70"
+                                      : "bg-gray-100 text-gray-400 border-gray-200 hover:text-gray-600"
+                                  }`}>
                                     Track
                                   </span>
                                 )}
@@ -475,30 +504,24 @@ function SchedulerPage() {
         <div className="space-y-4">
 
           {/* Auto Generate */}
-          <div className="bg-white rounded-2xl p-5 shadow-lg
-            border border-gray-100">
-            <h3 className="font-heading text-sm font-semibold
-              text-[#0A1931] mb-1">
+          <div className="bg-gradient-to-br from-[#1A3D63] to-[#0A1931] text-white rounded-2xl p-5 shadow-lg border border-white/10">
+            <h3 className="font-heading text-sm font-semibold mb-1">
               Auto-Generate Timetable
             </h3>
-            <p className="font-body text-xs text-gray-400 mb-4
-              leading-relaxed">
+            <p className="font-body text-xs text-[#B3CFE5] mb-4 leading-relaxed">
               Let AI build the perfect study schedule based on
               your subjects, difficulty & deadlines.
             </p>
 
             <div className="space-y-3">
               <div>
-                <label className="font-body text-xs text-gray-500
-                  mb-1 block">
+                <label className="font-body text-xs text-[#B3CFE5] mb-1 block font-semibold">
                   Study Intensity
                 </label>
                 <select
                   value={intensity}
                   onChange={(e) => setIntensity(e.target.value)}
-                  className="w-full bg-white text-gray-700 font-body
-                    text-xs px-3 py-2.5 rounded-lg border border-gray-200
-                    focus:outline-none focus:border-[#4A7FA7]"
+                  className="w-full bg-[#0A1931] text-white font-body text-xs px-3 py-2.5 rounded-lg border border-white/10 focus:outline-none focus:border-[#4A7FA7] transition-colors"
                 >
                   <option>Light (2–3 hrs/day)</option>
                   <option>Balanced (4–5 hrs/day)</option>
@@ -507,16 +530,13 @@ function SchedulerPage() {
               </div>
 
               <div>
-                <label className="font-body text-xs text-gray-500
-                  mb-1 block">
+                <label className="font-body text-xs text-[#B3CFE5] mb-1 block font-semibold">
                   Focus subject
                 </label>
                 <select
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full bg-white text-gray-700 font-body
-                    text-xs px-3 py-2.5 rounded-lg border border-gray-200
-                    focus:outline-none focus:border-[#4A7FA7]"
+                  className="w-full bg-[#0A1931] text-white font-body text-xs px-3 py-2.5 rounded-lg border border-white/10 focus:outline-none focus:border-[#4A7FA7] transition-colors"
                 >
                   {["Mathematics", "Physics", "Chemistry", "Biology", "English"].map(s => (
                     <option key={s}>{s}</option>
@@ -525,26 +545,23 @@ function SchedulerPage() {
               </div>
 
               <div>
-                <label className="font-body text-xs text-gray-500
-                  mb-1 block">
+                <label className="font-body text-xs text-[#B3CFE5] mb-1 block font-semibold">
                   Exam date
                 </label>
                 <input
                   type="date"
                   value={examDate}
                   onChange={(e) => setExamDate(e.target.value)}
-                  className="w-full bg-white text-gray-700 font-body
-                    text-xs px-3 py-2.5 rounded-lg border border-gray-200
-                    focus:outline-none focus:border-[#4A7FA7]"
+                  className="w-full bg-[#0A1931] text-white font-body text-xs px-3 py-2.5 rounded-lg border border-white/10 focus:outline-none focus:border-[#4A7FA7] transition-colors"
                 />
               </div>
-              <Button
-                variant="primary"
-                fullWidth
-                icon={Plus}
+              <button
+                onClick={() => {}}
+                className="w-full bg-[#EAF0F6] hover:bg-[#CBDDF0] text-[#0D2440] font-body text-xs font-bold py-2.5 rounded-lg shadow-sm transition-colors duration-200 flex items-center justify-center gap-1.5 border-none"
               >
+                <Sparkles size={14} />
                 Generate My Schedule
-              </Button>
+              </button>
             </div>
           </div>
 
