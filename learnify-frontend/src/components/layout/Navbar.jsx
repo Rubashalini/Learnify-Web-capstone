@@ -9,29 +9,30 @@ import {
   markAsRead,
   markAllAsRead,
 } from "../../api/notificationsApi"
+import api from "../../api/axiosInstance"
 
 const pageTitles = {
-  "/dashboard":        "Dashboard",
-  "/scheduler":        "Study Scheduler",
-  "/progress":         "Progress",
-  "/ai-chat":          "AI Assistant",
-  "/resources":        "Study Resources",
-  "/feedback":         "Feedback",
-  "/profile":          "Profile",
-  "/notifications":    "Notifications",
+  "/dashboard": "Dashboard",
+  "/scheduler": "Study Scheduler",
+  "/progress": "Progress",
+  "/ai-chat": "AI Assistant",
+  "/resources": "Study Resources",
+  "/feedback": "Feedback",
+  "/profile": "Profile",
+  "/notifications": "Notifications",
   "/mentor/resources": "My Resources",
-  "/mentor/profile":   "My Profile",
+  "/mentor/profile": "My Profile",
 }
 
 // ── Notification Icon ─────────────────────────────────────
 function NotificationIcon({ type }) {
   const config = {
-    deadline:     { icon: Clock,       bg: "bg-red-100",    color: "text-red-500"    },
-    session:      { icon: BookOpen,    bg: "bg-blue-100",   color: "text-blue-500"   },
-    resource:     { icon: BookOpen,    bg: "bg-green-100",  color: "text-green-500"  },
-    system:       { icon: AlertCircle, bg: "bg-purple-100", color: "text-purple-500" },
+    deadline: { icon: Clock, bg: "bg-red-100", color: "text-red-500" },
+    session: { icon: BookOpen, bg: "bg-blue-100", color: "text-blue-500" },
+    resource: { icon: BookOpen, bg: "bg-green-100", color: "text-green-500" },
+    system: { icon: AlertCircle, bg: "bg-purple-100", color: "text-purple-500" },
     mentor_reply: { icon: AlertCircle, bg: "bg-yellow-100", color: "text-yellow-500" },
-    reminder:     { icon: Clock,       bg: "bg-orange-100", color: "text-orange-500" },
+    reminder: { icon: Clock, bg: "bg-orange-100", color: "text-orange-500" },
   }
   const { icon: Icon, bg, color } = config[type] || config.system
   return (
@@ -43,15 +44,15 @@ function NotificationIcon({ type }) {
 }
 
 function Navbar({ onToggleSidebar }) {
-  const navigate    = useNavigate()
-  const location    = useLocation()
-  const pageTitle   = pageTitles[location.pathname] || "Dashboard"
+  const navigate = useNavigate()
+  const location = useLocation()
+  const pageTitle = pageTitles[location.pathname] || "Dashboard"
   const dropdownRef = useRef(null)
 
   const [notifications, setNotifications] = useState([])
-  const [unreadCount, setUnreadCount]     = useState(0)
-  const [showDropdown, setShowDropdown]   = useState(false)
-  const [user, setUser]                   = useState({ name: "", role: "" })
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [user, setUser] = useState({ name: "", role: "" })
 
   // ── Fetch notifications on mount ──────────────────────
   useEffect(() => {
@@ -62,9 +63,9 @@ function Navbar({ onToggleSidebar }) {
   async function fetchNotifications() {
     try {
       const response = await getNotifications()
-      const data     = response.data
+      const data = response.data
       setNotifications(data.notifications || [])
-      setUnreadCount(data.unread_count   || 0)
+      setUnreadCount(data.unread_count || 0)
     } catch (err) {
       console.error("Failed to fetch notifications:", err)
     }
@@ -72,15 +73,14 @@ function Navbar({ onToggleSidebar }) {
 
   async function fetchUser() {
     try {
-      // Get user from localStorage token
-      const token = localStorage.getItem("access_token")
-      if (!token) return
-
-      // Decode JWT payload to get user info
-      const payload = JSON.parse(atob(token.split(".")[1]))
-      const { default: api } = await import("../../api/axiosInstance")
       const response = await api.get("/auth/me")
-      setUser(response.data.data)
+
+      // Our Flask API wraps data in { success, message, data }
+      // Axios wraps response in response.data
+      // So real user is at response.data.data
+      const userData = response.data.data
+      setUser(userData)
+
     } catch (err) {
       console.error("Failed to fetch user:", err)
     }
