@@ -1,10 +1,13 @@
 import os
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
 def main():
     database_url = os.getenv(
-        "DATABASE_URL", "mysql+pymysql://root:password@localhost:3306/learnify"
+        "DATABASE_URL", "mysql+pymysql://root:@localhost:3306/learnify"
     )
 
     script_path = os.path.join(os.path.dirname(__file__), "..", "db", "init_schema.sql")
