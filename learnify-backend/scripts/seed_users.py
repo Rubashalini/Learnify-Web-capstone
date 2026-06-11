@@ -22,7 +22,7 @@ with app.app_context():
             status="active"
         )
         db.session.add(admin)
-        print("✓ Seeded Admin Account: admin@learnify.com / password")
+        print("[OK] Seeded Admin Account: admin@learnify.com / password")
     else:
         print("Admin account already exists.")
 
@@ -37,7 +37,7 @@ with app.app_context():
             status="active"
         )
         db.session.add(mentor)
-        print("✓ Seeded Mentor Account: mentor@learnify.com / password")
+        print("[OK] Seeded Mentor Account: mentor@learnify.com / password")
     else:
         print("Mentor account already exists.")
 
@@ -52,13 +52,13 @@ with app.app_context():
             status="active"
         )
         db.session.add(student)
-        print("✓ Seeded Student Account: student@learnify.com / password")
+        print("[OK] Seeded Student Account: student@learnify.com / password")
     else:
         print("Student account already exists.")
 
     try:
         db.session.commit()
-        print("\n🎉 Seeding successfully completed!")
+        print("\n[SUCCESS] Seeding successfully completed!")
     except Exception as e:
         db.session.rollback()
-        print(f"\n❌ Seeding failed: {e}")
+        print(f"\n[ERROR] Seeding failed: {e}")
