@@ -172,10 +172,10 @@ function SchedulerPage() {
           getTimetable(),
           getSubjects(),
         ])
-        if (statsRes.status === "fulfilled") setApiStats(statsRes.value.data)
-        if (tasksRes.status === "fulfilled") setApiTasks(tasksRes.value.data?.tasks || [])
-        if (timetableRes.status === "fulfilled") setApiTimetable(timetableRes.value.data?.sessions || [])
-        if (subjectsRes.status === "fulfilled") setAllSubjects(subjectsRes.value.data || [])
+        if (statsRes.status === "fulfilled") setApiStats(statsRes.value?.data ?? statsRes.value)
+        if (tasksRes.status === "fulfilled") setApiTasks((tasksRes.value?.data ?? tasksRes.value)?.tasks || [])
+        if (timetableRes.status === "fulfilled") setApiTimetable((timetableRes.value?.data ?? timetableRes.value)?.sessions || [])
+        if (subjectsRes.status === "fulfilled") setAllSubjects((subjectsRes.value?.data ?? subjectsRes.value) || [])
       } catch {}
       finally { setStatsLoading(false) }
     }
@@ -196,9 +196,9 @@ function SchedulerPage() {
         getTasks(),
         getTimetable(),
       ])
-      if (statsRes.status === "fulfilled") setApiStats(statsRes.value.data)
-      if (tasksRes.status === "fulfilled") setApiTasks(tasksRes.value.data?.tasks || [])
-      if (timetableRes.status === "fulfilled") setApiTimetable(timetableRes.value.data?.sessions || [])
+      if (statsRes.status === "fulfilled") setApiStats(statsRes.value?.data ?? statsRes.value)
+      if (tasksRes.status === "fulfilled") setApiTasks((tasksRes.value?.data ?? tasksRes.value)?.tasks || [])
+      if (timetableRes.status === "fulfilled") setApiTimetable((timetableRes.value?.data ?? timetableRes.value)?.sessions || [])
     } catch {}
   }
 
@@ -218,11 +218,17 @@ function SchedulerPage() {
         focus_subject: finalSubject,
         exam_date: examDate,
       })
-      const count = res?.data?.sessions_created || 0
+      const resData = res?.data ?? res
+      const count = resData?.sessions_created || 0
       setGenerateMsg({ type: "success", text: `✅ ${count} sessions generated for this week!` })
       await reloadTimetable()
     } catch (err) {
-      setGenerateMsg({ type: "error", text: "❌ Generation failed. Please try again." })
+      const msg = err?.response?.data?.message || ""
+      if (msg.includes("503") || msg.toLowerCase().includes("demand") || msg.toLowerCase().includes("unavailable")) {
+        setGenerateMsg({ type: "error", text: "⏳ AI is temporarily busy. Please wait a moment and try again." })
+      } else {
+        setGenerateMsg({ type: "error", text: "❌ Generation failed. Please try again." })
+      }
     } finally {
       setGenerating(false)
     }
@@ -278,9 +284,9 @@ function SchedulerPage() {
     if (hour === 8) slot = "8:00 AM"
     else if (hour === 10) slot = "10:00 AM"
     else if (hour === 12) slot = "12:00 PM"
-    else if (hour === 13 || hour === 1) slot = "1:00 PM"
-    else if (hour === 15 || hour === 3) slot = "3:00 PM"
-    else if (hour === 17 || hour === 5) slot = "5:00 PM"
+    else if (hour === 13) slot = "1:00 PM"
+    else if (hour === 15) slot = "3:00 PM"
+    else if (hour === 17) slot = "5:00 PM"
     
     if (slot && dayName in dynamicTimetable[slot]) {
       dynamicTimetable[slot][dayName] = {
@@ -479,12 +485,11 @@ function SchedulerPage() {
         })}
       </div>
 
-      {/* ── Middle Row ── */}
+      {/* ── Middle Row: Timetable + Right Sidebar ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-        {/* Weekly Timetable */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-5 shadow-lg
-          border border-gray-100">
+        {/* Weekly Timetable — spans 2 cols */}
+        <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
 
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-heading text-sm font-semibold text-[#0A1931]">
@@ -510,11 +515,11 @@ function SchedulerPage() {
               <thead>
                 <tr>
                   <th className="font-body text-gray-400 font-medium
-                    text-left py-2 pr-3 w-20">Time</th>
+                    text-left py-2 pr-4 w-24">Time</th>
                   {days.map((day) => (
                     <th key={day}
-                      className="font-body text-gray-500 font-semibold
-                        text-center py-2 px-1">
+                      className="font-body text-gray-600 font-semibold
+                        text-center py-2 px-1 text-xs">
                       {day}
                     </th>
                   ))}
@@ -524,7 +529,7 @@ function SchedulerPage() {
                 {timeSlots.map((time) => (
                   <tr key={time}>
                     <td className="font-body text-gray-400 text-xs
-                      py-1.5 pr-3 whitespace-nowrap align-top pt-2">
+                      py-2 pr-4 whitespace-nowrap align-top pt-3 w-20">
                       {time}
                     </td>
 
@@ -539,8 +544,8 @@ function SchedulerPage() {
                         const cell = dynamicTimetable[time]?.[day]
                         if (!cell) {
                           return (
-                            <td key={day} className="py-1 px-1">
-                              <div className="border border-dashed border-[#B3CFE5] rounded-lg py-4 text-center text-[#B3CFE5] font-body text-[10px] font-bold min-h-[58px] flex items-center justify-center bg-transparent">
+                            <td key={day} className="py-1.5 px-1 align-top">
+                              <div className="border border-dashed border-[#B3CFE5] rounded-xl h-[80px] text-center text-[#B3CFE5] font-body text-[10px] font-bold flex items-center justify-center bg-transparent">
                                 Free
                               </div>
                             </td>
@@ -557,70 +562,49 @@ function SchedulerPage() {
                         const isDarkBg = cell.color_hex || cell.subject === "Mathematics" || cell.subject === "Physics"
 
                         return (
-                          <td key={day} className="py-1 px-1">
+                          <td key={day} className="py-1.5 px-1 align-top">
                             <button
                               onClick={() => handleOpenModal(time, day, cell.subject, cell.detail, cell.id)}
                               style={cell.color_hex ? { backgroundColor: cell.color_hex } : undefined}
-                              className={`w-full text-left rounded-lg py-2 px-2 min-h-[58px] transition-all duration-200 hover:scale-[1.02] hover:shadow-md border border-transparent ${cell.color_hex ? "" : (subjectColors[cell.subject] || "bg-gray-100")}`}
+                              className={`w-full text-left rounded-xl px-2.5 h-[80px] overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-md border border-transparent flex flex-col justify-between py-2 ${cell.color_hex ? "" : (subjectColors[cell.subject] || "bg-gray-100")}`}
                             >
-                              <p className={`font-body font-semibold text-[11px] leading-tight ${
-                                isSkipped
-                                  ? "line-through opacity-50"
-                                  : ""
-                              } ${cell.color_hex ? "text-white" : (subjectTextColors[cell.subject] || "text-gray-700")}`}>
-                                {cell.subject}
-                              </p>
-                              {cell.detail && (
-                                <p className={`font-body text-[10px] leading-tight mt-0.5 ${
-                                  isSkipped
-                                    ? "line-through opacity-40"
-                                    : ""
-                                } ${
-                                  isDarkBg
-                                    ? "text-white/70"
-                                    : "text-gray-500"
-                                }`}>
-                                  {cell.detail}
+                              {/* Top: subject + detail always present */}
+                              <div className="flex-1 min-h-0">
+                                <p className={`font-body font-semibold text-[11px] leading-tight truncate ${
+                                  isSkipped ? "line-through opacity-50" : ""
+                                } ${cell.color_hex ? "text-white" : (subjectTextColors[cell.subject] || "text-gray-700")}`}>
+                                  {cell.subject}
                                 </p>
-                              )}
+                                <p className={`font-body text-[10px] leading-tight mt-0.5 truncate ${
+                                  isSkipped ? "line-through opacity-40" : ""
+                                } ${isDarkBg ? "text-white/60" : "text-gray-400"}`}>
+                                  {cell.detail || ""}
+                                </p>
+                              </div>
 
-                              {/* Progress Status Indicator */}
-                              <div className="mt-2 flex items-center gap-1">
+                              {/* Bottom: status badge — always at the bottom */}
+                              <div className="flex items-center gap-1 flex-shrink-0">
                                 {isCompleted && (
                                   <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 ${
-                                    isDarkBg
-                                      ? "bg-green-500/20 text-green-300"
-                                      : "bg-green-100 text-green-700"
-                                  }`}>
-                                    ✓ 2.0h
-                                  </span>
+                                    isDarkBg ? "bg-green-500/20 text-green-300" : "bg-green-100 text-green-700"
+                                  }`}>✓ Done</span>
                                 )}
                                 {isPartial && (
                                   <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 ${
-                                    isDarkBg
-                                      ? "bg-amber-500/20 text-amber-300"
-                                      : "bg-amber-100 text-amber-700"
-                                  }`}>
-                                    ◷ {log.hours}h
-                                  </span>
+                                    isDarkBg ? "bg-amber-500/20 text-amber-300" : "bg-amber-100 text-amber-700"
+                                  }`}>◷ {log.hours}h</span>
                                 )}
                                 {isSkipped && (
                                   <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 ${
-                                    isDarkBg
-                                      ? "bg-red-500/20 text-red-300"
-                                      : "bg-red-100 text-red-700"
-                                  }`}>
-                                    ✗ Skipped
-                                  </span>
+                                    isDarkBg ? "bg-red-500/20 text-red-300" : "bg-red-100 text-red-700"
+                                  }`}>✗ Skip</span>
                                 )}
                                 {!hasLogged && (
                                   <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded border ${
                                     isDarkBg
-                                      ? "bg-white/10 text-white/40 border-white/10 hover:text-white/70"
-                                      : "bg-gray-100 text-gray-400 border-gray-200 hover:text-gray-600"
-                                  }`}>
-                                    Track
-                                  </span>
+                                      ? "bg-white/10 text-white/40 border-white/10"
+                                      : "bg-gray-100 text-gray-400 border-gray-200"
+                                  }`}>Track</span>
                                 )}
                               </div>
                             </button>
@@ -633,22 +617,9 @@ function SchedulerPage() {
               </tbody>
             </table>
           </div>
-
-          {/* Legend */}
-          <div className="flex flex-wrap gap-3 mt-4 pt-3
-            border-t border-gray-100">
-            {legendItems.map((item) => (
-              <div key={item.label} className="flex items-center gap-1.5">
-                <span className={`w-2.5 h-2.5 rounded-sm ${item.color}`} />
-                <span className="font-body text-[11px] text-gray-400">
-                  {item.label}
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
 
-        {/* Right Column */}
+        {/* Right Column: Auto-Generate + Today's Sessions */}
         <div className="space-y-4">
 
           {/* Auto Generate */}
@@ -742,90 +713,56 @@ function SchedulerPage() {
           </div>
 
           {/* Today's Sessions */}
-          <div className="bg-white rounded-2xl p-5 shadow-lg
-            border border-gray-100">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-heading text-sm font-semibold
-                text-[#0A1931]">
-                Today's Sessions
-              </h3>
-              <span className="font-body text-xs text-gray-400">
-                Sunday, Apr 19
-              </span>
-            </div>
-            <div className="space-y-3">
-              {todaysSessions.length === 0 ? (
-                <p className="font-body text-xs text-gray-400 text-center py-4">
-                  No sessions scheduled for today
-                </p>
-              ) : (
-                todaysSessions.map((session, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <span
-                      className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
-                      style={{ backgroundColor: session.color || "#4A7FA7" }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-body text-xs text-[#0A1931]
-                        font-semibold leading-tight">
-                        {session.subject}
-                      </p>
-                      <p className="font-body text-[10px] text-gray-400">
-                        {session.detail}
-                      </p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="font-body text-[10px] text-gray-400">
-                        {session.time}
-                      </p>
-                      <p className={`font-body text-[10px] font-semibold
-                        ${session.statusColor}`}>
-                        {session.status}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-heading text-sm font-semibold text-[#0A1931]">
+              Today's Sessions
+            </h3>
+            <span className="font-body text-xs text-gray-400">
+              {new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+            </span>
           </div>
-
+          <div className="space-y-3">
+            {todaysSessions.length === 0 ? (
+              <p className="font-body text-xs text-gray-400 text-center py-4">
+                No sessions scheduled for today
+              </p>
+            ) : (
+              todaysSessions.map((session, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <span
+                    className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                    style={{ backgroundColor: session.color || "#4A7FA7" }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-xs text-[#0A1931] font-semibold leading-tight">
+                      {session.subject}
+                    </p>
+                    <p className="font-body text-[10px] text-gray-400">
+                      {session.detail}
+                    </p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="font-body text-[10px] text-gray-400">{session.time}</p>
+                    <p className={`font-body text-[10px] font-semibold ${session.statusColor}`}>
+                      {session.status}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          </div>
         </div>
       </div>
 
-      {/* ── Bottom Row ── */}
+      {/* ── Bottom Row: Deadlines + AI Tips ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-        {/* AI Study Tips */}
-        <div className="bg-white rounded-2xl p-5 shadow-lg
-          border border-gray-100">
-          <h3 className="font-heading text-sm font-semibold
-            text-[#0A1931] mb-4">
-            AI Study Tips
-          </h3>
-          <div className="space-y-4">
-            {aiTips.map((tip, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <span className="text-xl flex-shrink-0">{tip.icon}</span>
-                <div>
-                  <p className="font-body text-xs font-semibold
-                    text-[#0A1931] leading-tight">
-                    {tip.tip}
-                  </p>
-                  <p className="font-body text-xs text-gray-400 mt-0.5">
-                    {tip.detail}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* Upcoming Deadlines */}
         <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-heading text-sm font-semibold text-[#0A1931]">
-              Upcoming Deadlines
-            </h3>
+            <h3 className="font-heading text-sm font-semibold text-[#0A1931]">Upcoming Deadlines</h3>
             <button
               onClick={() => {
                 setTaskTitle("")
@@ -842,9 +779,7 @@ function SchedulerPage() {
           </div>
           <div className="space-y-3">
             {upcomingDeadlines.length === 0 ? (
-              <p className="font-body text-xs text-gray-400 text-center py-4">
-                No upcoming deadlines 🎉
-              </p>
+              <p className="font-body text-xs text-gray-400 text-center py-4">No upcoming deadlines 🎉</p>
             ) : (
               upcomingDeadlines.map((item, i) => (
                 <div key={i} className="flex items-start justify-between border-l-4 border-[#1A3D63] pl-3 py-1">
@@ -855,25 +790,33 @@ function SchedulerPage() {
                       className="w-4 h-4 rounded text-[#1A3D63] focus:ring-[#4A7FA7] border-gray-300 cursor-pointer mt-0.5"
                     />
                     <div>
-                      <p className="font-body text-xs font-semibold text-[#0A1931]">
-                        {item.title}
-                      </p>
-                      <p className="font-body text-[10px] text-gray-400">
-                        {item.detail}
-                      </p>
+                      <p className="font-body text-xs font-semibold text-[#0A1931]">{item.title}</p>
+                      <p className="font-body text-[10px] text-gray-400">{item.detail}</p>
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0 ml-2">
-                    <p className="font-heading text-lg font-bold text-[#1A3D63]">
-                      {item.days}
-                    </p>
-                    <p className="font-body text-[10px] text-gray-400">
-                      days left
-                    </p>
+                    <p className="font-heading text-lg font-bold text-[#1A3D63]">{item.days}</p>
+                    <p className="font-body text-[10px] text-gray-400">days left</p>
                   </div>
                 </div>
               ))
             )}
+          </div>
+        </div>
+
+        {/* AI Study Tips */}
+        <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
+          <h3 className="font-heading text-sm font-semibold text-[#0A1931] mb-4">AI Study Tips</h3>
+          <div className="space-y-4">
+            {aiTips.map((tip, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <span className="text-xl flex-shrink-0">{tip.icon}</span>
+                <div>
+                  <p className="font-body text-xs font-semibold text-[#0A1931] leading-tight">{tip.tip}</p>
+                  <p className="font-body text-xs text-gray-400 mt-0.5">{tip.detail}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
