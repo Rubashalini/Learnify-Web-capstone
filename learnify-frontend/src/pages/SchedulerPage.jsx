@@ -11,7 +11,7 @@ import { endSession } from "../api/trackingApi"
 
 // ── statsData is now built dynamically from API (see dynamicStats below)
 
-const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 const timeSlots = ["8:00 AM", "10:00 AM", "12:00 PM", "1:00 PM", "3:00 PM", "5:00 PM"]
 
 const subjectColors = {
@@ -114,13 +114,7 @@ const todaysSessions = [
   },
 ]
 
-const subjectPerformance = [
-  { name: "Mathematics", percent: 82, color: "bg-blue-500" },
-  { name: "Physics", percent: 74, color: "bg-sky-500" },
-  { name: "Chemistry", percent: 91, color: "bg-cyan-500" },
-  { name: "Biology", percent: 67, color: "bg-teal-500" },
-  { name: "English", percent: 78, color: "bg-indigo-500" },
-]
+
 
 const aiTips = [
   {
@@ -269,7 +263,7 @@ function SchedulerPage() {
   const dynamicTimetable = {}
   timeSlots.forEach(slot => {
     dynamicTimetable[slot] = {
-      Monday: null, Tuesday: null, Wednesday: null, Thursday: null, Friday: null, Saturday: null
+      Monday: null, Tuesday: null, Wednesday: null, Thursday: null, Friday: null, Saturday: null, Sunday: null
     }
   })
 
@@ -535,7 +529,7 @@ function SchedulerPage() {
                     </td>
 
                     {time === "12:00 PM" ? (
-                      <td colSpan={6}
+                      <td colSpan={7}
                         className="text-center font-body text-xs
                           text-gray-300 py-2 italic">
                         — Lunch Break —
@@ -799,30 +793,7 @@ function SchedulerPage() {
       </div>
 
       {/* ── Bottom Row ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-        {/* Subject Performance */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <h3 className="font-heading text-sm font-semibold text-[#0A1931] mb-4">
-            Subject Performance
-          </h3>
-          <div className="space-y-3">
-            {subjectPerformance.map((item) => (
-              <ProgressBar
-                key={item.name}
-                value={item.percent}
-                label={item.name}
-                showPercent
-                color={
-                  item.name === "Mathematics" ? "primary" :
-                    item.name === "Physics" ? "accent" :
-                      item.name === "Chemistry" ? "success" :
-                        item.name === "Biology" ? "warning" : "purple"
-                }
-              />
-            ))}
-          </div>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
         {/* AI Study Tips */}
         <div className="bg-white rounded-2xl p-5 shadow-lg
