@@ -69,6 +69,12 @@ CREATE TABLE users (
     role          ENUM('student', 'mentor', 'admin') NOT NULL DEFAULT 'student',
     status        ENUM('active', 'pending', 'inactive') NOT NULL DEFAULT 'pending',
     avatar_url    VARCHAR(500) NULL,
+    phone         VARCHAR(20) NULL,
+    bio           TEXT NULL,
+    student_id    VARCHAR(50) NULL,
+    university    VARCHAR(200) NULL,
+    faculty       VARCHAR(200) NULL,
+    year          VARCHAR(20) NULL,
     created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_login    DATETIME     NULL,
     PRIMARY KEY (id),
@@ -487,6 +493,19 @@ CREATE TABLE admin_audit_logs (
     INDEX idx_aal_entity (target_entity),
     CONSTRAINT fk_aal_admin FOREIGN KEY (admin_id) REFERENCES users(id)
 ) ENGINE = InnoDB;
+
+-- blocklist for revoked JWTs
+CREATE TABLE token_blocklist (
+    id         INT          NOT NULL AUTO_INCREMENT,
+    jti        VARCHAR(36)  NOT NULL,
+    token_type VARCHAR(10)  NOT NULL DEFAULT 'access',
+    revoked_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    user_id    INT          NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_tb_jti (jti),
+    INDEX idx_tb_jti (jti)
+) ENGINE = InnoDB;
+
 
 SET FOREIGN_KEY_CHECKS = 1;
 

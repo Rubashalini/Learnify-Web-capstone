@@ -20,23 +20,23 @@ def create_app(config_name="development"):
     jwt.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
-    cors.init_app(app, resources={
-        r"/api/*": {
-            "origins": [
-                "http://localhost:3000",
-                "http://127.0.0.1:3000"
-            ],
-            "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"],
-            "supports_credentials": True
-        }
-    })
 
-    # Fix Google OAuth popup issue
+    # ── CORS — allow frontend requests ────────────────────
+    cors.init_app(app,
+        resources={r"/api/*": {"origins": "*"}},
+        supports_credentials=True,
+        allow_headers=["Content-Type", "Authorization"],
+        methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    )
+
+    # ── Fix Google OAuth popup issue ──────────────────────
     @app.after_request
     def add_headers(response):
-        response.headers["Cross-Origin-Opener-Policy"] = "unsafe-none"
+        response.headers["Cross-Origin-Opener-Policy"]  = "unsafe-none"
         response.headers["Cross-Origin-Embedder-Policy"] = "unsafe-none"
+        response.headers["Access-Control-Allow-Origin"]  = "*"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
         return response
 
     # Register blueprints
